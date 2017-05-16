@@ -1,0 +1,1 @@
+## Simple entertainment news spider
