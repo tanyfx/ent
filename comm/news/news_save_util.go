@@ -135,7 +135,7 @@ func saveToWordpress(db *sql.DB, n *NewsItem, starTaxonomyMap map[string]string)
 
 	postID = strconv.FormatInt(id, 10)
 
-	updateStr := "update news set post_id = ?, status = 2 where news_id = ?;"
+	updateStr := "update `news` set post_id = ?, status = 2 where news_id = ?;"
 	if _, err = db.Exec(updateStr, postID, n.newsID); err != nil {
 		errMsg := fmt.Sprintln("error while update post id in table news", err.Error())
 		return postID, errors.New(errMsg)

@@ -4,8 +4,8 @@
 
 package scheduler
 
-//import "net/http"
+import "net/http"
 
-//type Scheduler interface {
-//	Push(req *http.Request)
-//}
+type Scheduler interface {
+	Push(req *http.Request)
+}

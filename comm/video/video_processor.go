@@ -32,11 +32,14 @@ type VideoProcessor struct {
 	deduper         *textutil.Deduper
 	starTagger      *comm.StarTagger
 	starTaxonomyMap map[string]string
+	vChan           chan *VideoItem
+	collect         bool //denotes whether collect videos to an array and handle save of array
 }
 
 func GenVideoProcessor(extractor VideoExtractor) *VideoProcessor {
 	return &VideoProcessor{
 		extractor: extractor,
+		collect:   false,
 	}
 }
 
@@ -49,13 +52,15 @@ func InitVideoProcessor(extractor VideoExtractor, db *sql.DB, redisCli *redis.Cl
 		deduper:         deduper,
 		starTagger:      starTagger,
 		starTaxonomyMap: starTaxonomyMap,
+		collect:         false,
 	}
 }
 
 func (p *VideoProcessor) ProcessPage(vItemPage *page.Page) error {
 	v := p.extractor.ExtractVideo(vItemPage)
 	if !v.Valid() {
-		return errors.New("video not valid")
+		errMsg := fmt.Sprintf("video not valid: %s", vItemPage.GetRequest().URL.String())
+		return errors.New(errMsg)
 	}
 	tmpID, err := redisutil.MGetVideoID(p.redisCli, v.Title, v.Link)
 	if err != nil {
@@ -67,10 +72,16 @@ func (p *VideoProcessor) ProcessPage(vItemPage *page.Page) error {
 		fmt.Println(time.Now().Format(consts.TimeFormat), errMsg)
 		return errors.New(errMsg)
 	}
+
 	indexID, ok := p.deduper.PushOne(v.Title, "")
+
 	if !ok {
-		return errors.New("find repeated video")
+		errMsg := fmt.Sprint("find repeated video for " + v.Title)
+		fmt.Println(time.Now().Format(consts.TimeFormat), errMsg)
+		return errors.New(errMsg)
 	}
+
+	v.videoIndex = indexID
 
 	metaMap := vItemPage.GetMeta()
 	if searchName, ok := metaMap[consts.SearchStar]; ok {
@@ -90,10 +101,14 @@ func (p *VideoProcessor) ProcessPage(vItemPage *page.Page) error {
 		v.Stars = append(v.Stars, pair)
 	}
 
-	err = saveVideo(p.db, p.redisCli, v, p.starTaxonomyMap)
-	if err != nil {
-		log.Println(err.Error())
-		return err
+	if p.collect {
+		p.vChan <- v
+	} else {
+		err = saveVideo(p.db, p.redisCli, v, p.starTaxonomyMap)
+		if err != nil {
+			log.Println(err.Error())
+			return err
+		}
 	}
 
 	err = p.deduper.UpdateDocID(indexID, v.videoID)
@@ -102,8 +117,8 @@ func (p *VideoProcessor) ProcessPage(vItemPage *page.Page) error {
 	}
 
 	for _, pair := range v.Stars {
-		fmt.Printf("%s get star:\t%s\t%s\t%s\t%s\n", time.Now().Format(consts.TimeFormat), v.videoID,
-			pair.StarID, pair.NameCN, v.Title)
+		fmt.Printf("%s get star:\tvid: %s\tstar_id: %s\t%s\t%s\n", time.Now().Format(consts.TimeFormat),
+			v.videoID, pair.StarID, pair.NameCN, v.Title)
 	}
 
 	return nil
@@ -160,6 +175,12 @@ func (p *VideoProcessor) SetStarTagger(starTagger *comm.StarTagger) *VideoProces
 //starTaxonomyMap map[star_id] = term_taxonomy_id
 func (p *VideoProcessor) SetStarTaxonomyMap(starTaxonomyMap map[string]string) *VideoProcessor {
 	p.starTaxonomyMap = starTaxonomyMap
+	return p
+}
+
+func (p *VideoProcessor) SetCollect(videoChan chan *VideoItem) *VideoProcessor {
+	p.vChan = videoChan
+	p.collect = true
 	return p
 }
 

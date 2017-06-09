@@ -9,6 +9,9 @@ import (
 	"log"
 	"net/http"
 
+	"time"
+
+	"github.com/tanyfx/ent/comm/consts"
 	"github.com/tanyfx/ent/comm/redisutil"
 	"github.com/tanyfx/ent/core/download"
 	"github.com/tanyfx/ent/core/page"
@@ -35,6 +38,7 @@ func (p *NewsDownloader) Download(req *http.Request) *page.Page {
 	}
 	if exists {
 		errMsg := fmt.Sprintf("news link exists: %s", req.URL.String())
+		fmt.Println(time.Now().Format(consts.TimeFormat), errMsg)
 		respPage.SetStatus(false, errMsg)
 		return respPage
 	}

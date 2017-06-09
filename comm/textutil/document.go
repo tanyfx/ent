@@ -194,7 +194,7 @@ func similarity(a, b map[string]int) float32 {
 	return float32(count) / float32(len(big))
 }
 
-func FindSimDoc(input Doc, docList []Doc, limitCount int, simScore float32) (Doc, bool) {
+func findSimDoc(input Doc, docList []Doc, limitCount int, simScore float32) (Doc, bool) {
 	if limitCount < 1 {
 		limitCount = 1
 	}
@@ -204,9 +204,13 @@ func FindSimDoc(input Doc, docList []Doc, limitCount int, simScore float32) (Doc
 	wg := &sync.WaitGroup{}
 	wg.Add(limitCount)
 
-	sendWG := &sync.WaitGroup{}
-	foundChan := make(chan docCTX, limitCount)
-	inputChan := make(chan Doc, limitCount)
+	n := len(docList)
+	if n > limitCount {
+		n = limitCount
+	}
+
+	foundChan := make(chan docCTX, limitCount+10)
+	inputChan := make(chan Doc)
 
 	defer func() {
 		wg.Wait()
@@ -218,21 +222,12 @@ func FindSimDoc(input Doc, docList []Doc, limitCount int, simScore float32) (Doc
 	}
 
 	sCount := 0
+	for i := 0; i < n; i++ {
+		inputChan <- docList[i]
+		sCount++
+	}
 	rCount := 0
-	go func() {
-		sendWG.Add(1)
-		defer sendWG.Done()
-		for _, doc := range docList {
-
-			if found {
-				break
-			}
-			inputChan <- doc
-			sCount++
-		}
-	}()
-
-	for i := 0; i < len(docList); i++ {
+	for i := n; i < len(docList); i++ {
 		c := <-foundChan
 		rCount++
 		if c.findSim {
@@ -240,15 +235,19 @@ func FindSimDoc(input Doc, docList []Doc, limitCount int, simScore float32) (Doc
 			found = true
 			break
 		}
+		inputChan <- docList[i]
+		sCount++
 	}
 
-	sendWG.Wait()
 	close(inputChan)
 
 	for i := rCount; i < sCount; i++ {
-		<-foundChan
+		c := <-foundChan
+		if c.findSim && !found {
+			res = c.doc
+			found = true
+		}
 	}
-
 	return res, found
 }
 

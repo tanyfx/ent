@@ -84,14 +84,14 @@ func (p *NewsProcessor) ProcessPage(page *page.Page) error {
 	}
 
 	//DEBUG
-	log.Println("do deduplication for:", n.Title, n.Link)
+	//log.Println("do deduplication for:", n.Title, n.Link)
 
 	indexID, ok := p.deduper.PushOne(n.Title, "")
 	if !ok {
 		return errors.New("find repeated news")
 	}
 	//DEBUG
-	log.Println("download img for:", n.Title, n.Link)
+	//log.Println("download img for:", n.Title, n.Link)
 
 	n.Content, n.Imgs = p.imgReplacer.ReplaceImgs(n, p.folderPath, p.urlPrefix)
 	fmt.Printf("%s %d\timgs downloaded for %s\n", time.Now().Format(consts.TimeFormat), len(n.Imgs), n.Title)
@@ -135,11 +135,6 @@ func (p *NewsProcessor) ProcessPage(page *page.Page) error {
 			pair.StarID, pair.NameCN, n.Title)
 	}
 
-	//if err = saveNewsRedisKey(n, p.redisCli); err != nil {
-	//	errMsg := fmt.Sprintln("error while set news redis key", err.Error())
-	//	log.Println(errMsg)
-	//	return errors.New(errMsg)
-	//}
 	return nil
 }
 

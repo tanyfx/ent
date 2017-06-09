@@ -15,6 +15,7 @@ import (
 
 type IndexProcessor interface {
 	ProcessPage(*page.Page) []*item.ItemCTX
+	GetIndexName() string
 }
 
 type IndexCTX struct {
@@ -77,6 +78,7 @@ func (p *IndexCTX) SetItemProcessor(processor page.PageProcessor) *IndexCTX {
 func (p *IndexCTX) ExtractItemCTX() []*item.ItemCTX {
 	p.indexPage = p.downloader.Download(p.req)
 
+	//DEBUG
 	//log.Printf("index page content:\n%s\n", p.indexPage.GetBody())
 
 	ctxList := p.processor.ProcessPage(p.indexPage)

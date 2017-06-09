@@ -1,5 +1,5 @@
 //author tyf
-//date   2017-02-13 23:58
+//date   2017-02-21 11:20
 //desc
 
 package main
@@ -15,46 +15,40 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/huichen/sego"
-	"github.com/tanyfx/ent/app/newsapp/qqnews"
-	"github.com/tanyfx/ent/app/newsapp/sinanews"
+	"gopkg.in/redis.v5"
+
+	"github.com/tanyfx/ent/app/videoapp/qqvideo"
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/consts"
-	"github.com/tanyfx/ent/comm/news"
 	"github.com/tanyfx/ent/comm/textutil"
+	"github.com/tanyfx/ent/comm/video"
 	"github.com/tanyfx/ent/comm/wordpressutil"
 	"github.com/tanyfx/ent/core/download"
 	"github.com/tanyfx/ent/core/index"
 	"github.com/tanyfx/ent/core/item"
-	"gopkg.in/redis.v5"
 )
 
 var confFile = flag.String("c", "db.conf", "db conf file")
 var dictFile = flag.String("d", "dict/dictionary.txt", "dictionary for sego")
-var starFile = flag.String("i", "stars/c1.txt", "stars name for news search")
-var search = flag.Bool("s", false, "-s for search news")
-var update = flag.Bool("u", false, "-u for update news")
+var starFile = flag.String("i", "stars/c1.txt", "stars name for video search")
+var search = flag.Bool("s", false, "-s for search video")
+var update = flag.Bool("u", false, "-u for update video")
 
 var db *sql.DB
 var seg *sego.Segmenter
-var newsRedisCli *redis.Client
-var folderPath string
-var urlPrefix string
+var videoRedisCli *redis.Client
 var starTagger *comm.StarTagger //extract star tag from title
-var newsDeduper *textutil.Deduper
+var videoDeduper *textutil.Deduper
 var starTaxonomyMap map[string]string      //for saving to wordpress: star_id -> term_taxonomy_id
-var starPairMap map[string]comm.StarIDPair //for news search
-var itemDownloader *news.NewsDownloader
+var starPairMap map[string]comm.StarIDPair //for video search
+var itemDownloader *video.VideoDownloader
 
-var updateProducers = []news.NewsUpdateProducer{
-	&sinanews.SinaUpdateProducer{},
-	//&kuaibaonews.KuaibaoUpdateProducer{},
-	//&qqnews.QQ3gIndexProducer{},
-	&qqnews.XWIndexProducer{},
+var updateProducers = []video.VideoUpdateProducer{
+	&qqvideo.UpdateQQVideoProducer{},
 }
 
-var searchProducers = []news.NewsSearchProducer{
-	//&kuaibaonews.KuaibaoSearchProducer{},
-	&qqnews.QQSearchIndexProducer{},
+var searchProducers = []video.VideoSearchProducer{
+	&qqvideo.SearchQQVideoProducer{},
 }
 
 func Init() error {
@@ -71,20 +65,22 @@ func Init() error {
 		errMsg := fmt.Sprintln("error while open mysql, exit", err.Error())
 		return errors.New(errMsg)
 	}
+	//defer db.Close()
 
 	seg = &sego.Segmenter{}
 	seg.LoadDictionary(*dictFile)
 
-	newsRedisCli = redis.NewClient(&redis.Options{
+	videoRedisCli = redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
 		Password: redisPasswd,
-		DB:       consts.RedisNewsDB,
+		DB:       consts.RedisVideoDB,
 	})
 
-	if err = newsRedisCli.Ping().Err(); err != nil {
-		errMsg := fmt.Sprintln("error ping news redis db, exit", err.Error())
+	if err = videoRedisCli.Ping().Err(); err != nil {
+		errMsg := fmt.Sprintln("error ping video redis db, exit", err.Error())
 		return errors.New(errMsg)
 	}
+	//defer videoRedisCli.Close()
 
 	starRedisCli := redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
@@ -98,18 +94,12 @@ func Init() error {
 	}
 	defer starRedisCli.Close()
 
-	folderPath, urlPrefix, err = news.GenImgFolderPrefix()
-	if err != nil {
-		return err
-	}
-
 	nickNameMap, err := comm.GetNickname(db)
 	if err != nil {
 		return err
 	}
 
 	starIDMap, idStarMap, err := comm.GetRedisStarID(starRedisCli)
-	//starIDMap, _, err := comm.GetRedisStarID(starRedisCli)
 	if err != nil {
 		errMsg := fmt.Sprintln("error while get star name->id map", err.Error())
 		return errors.New(errMsg)
@@ -120,9 +110,9 @@ func Init() error {
 	//starTagger = comm.NewStarTagger(starIDMap)
 	starTagger = comm.NewStarNicknameTagger(idStarMap, nickNameMap)
 
-	newsDeduper, err = news.GenNewsDeduper(newsRedisCli, seg)
+	videoDeduper, err = video.GenVideoDeduper(videoRedisCli, seg)
 	if err != nil {
-		errMsg := fmt.Sprintln("error while generate news deduper", err.Error())
+		errMsg := fmt.Sprintln("error while generate video deduper", err.Error())
 		return errors.New(errMsg)
 	}
 
@@ -136,7 +126,7 @@ func Init() error {
 		starPairMap = comm.GetSearchStarList(*starFile, starIDMap)
 	}
 
-	itemDownloader = news.GenNewsDownloader(newsRedisCli)
+	itemDownloader = video.GenVideoDownloader(videoRedisCli)
 
 	return nil
 }
@@ -150,18 +140,20 @@ func main() {
 		if db != nil {
 			db.Close()
 		}
-		if newsRedisCli != nil {
-			newsRedisCli.Close()
+		if videoRedisCli != nil {
+			videoRedisCli.Close()
 		}
 		log.Fatalln(err.Error())
 	}
 
+	//reader.ReadLine()
+
 	defer func() {
 		db.Close()
-		newsRedisCli.Close()
+		videoRedisCli.Close()
 	}()
 
-	simpleChan := make(chan *news.SimpleCTX, 10)
+	simpleChan := make(chan *video.SimpleVideoCTX, 10)
 	itemChan := make(chan *item.ItemCTX, 10)
 	itemWG := &sync.WaitGroup{}
 	counter := comm.NewCounter()
@@ -178,24 +170,28 @@ func main() {
 		count := 0
 		for c := range simpleChan {
 			count++
-			newsProcessor := news.InitNewsProcessor(c.Extractor, c.ImgReplacer, folderPath, urlPrefix,
-				db, newsRedisCli, newsDeduper, starTagger, starTaxonomyMap)
-
-			if !newsProcessor.Valid() {
-				log.Fatalln("news processor not valid")
+			videoProcessor := video.InitVideoProcessor(c.Extractor, db, videoRedisCli, videoDeduper,
+				starTagger, starTaxonomyMap)
+			if !videoProcessor.Valid() {
+				log.Fatalln("video processor not valid")
 			}
-			indexCTX := index.NewIndexCTX(c.Req, &download.HttpDownloader{}, itemDownloader,
-				c.IndexProcessor, newsProcessor)
+			if c.ItemDownloader == nil {
+				c.ItemDownloader = itemDownloader
+			}
+			indexCTX := index.NewIndexCTX(c.Req, &download.HttpDownloader{}, c.ItemDownloader,
+				c.IndexProcessor, videoProcessor)
+			ctxList := indexCTX.ExtractItemCTX()
 
-			itemCTXList := indexCTX.ExtractItemCTX()
+			//DEBUG
+			//log.Println("[DEBUG]", indexCTX.GetRequest().URL.String(), "context length:", len(ctxList))
 
 			fmt.Printf("%s\t%d\tget %s context length: %d\n",
 				time.Now().Format(consts.TimeFormat), count,
-				c.IndexProcessor.GetIndexName(), len(itemCTXList))
+				c.IndexProcessor.GetIndexName(), len(ctxList))
 
-			for _, itemCTX := range itemCTXList {
+			for _, itemCTX := range ctxList {
 
-				//fmt.Println("news meta map length:", len(itemCTX.Meta))
+				//fmt.Println("video meta map length:", len(itemCTX.Meta))
 				//for k, v := range itemCTX.Meta {
 				//	fmt.Println(k, " = ", v)
 				//}
@@ -204,7 +200,8 @@ func main() {
 			}
 
 			//DEBUG
-			log.Println("[DEBUG]", counter.Count(), "news added to wordpress up to now")
+			log.Println("[DEBUG]", counter.Count(), "video added to wordpress up to now")
+
 		}
 
 		log.Println("simple index receive worker stopped")
@@ -217,8 +214,8 @@ func main() {
 		indexWG.Add(len(updateProducers))
 		for i, tmp := range updateProducers {
 			log.Println("run update index producer:", i)
-			go func(c int, producer news.NewsUpdateProducer) {
-				producer.Produce(simpleChan)
+			go func(c int, producer video.VideoUpdateProducer) {
+				producer.Produce(simpleChan, videoRedisCli)
 				log.Println("update index producer", c, "stopped")
 				indexWG.Done()
 			}(i, tmp)
@@ -229,8 +226,8 @@ func main() {
 		indexWG.Add(len(searchProducers))
 		for i, tmp := range searchProducers {
 			log.Println("run search index producer:", i)
-			go func(c int, producer news.NewsSearchProducer) {
-				producer.Produce(simpleChan, starPairMap)
+			go func(c int, producer video.VideoSearchProducer) {
+				producer.Produce(simpleChan, videoRedisCli, starPairMap)
 				log.Println("search index producer", c, "stopped")
 				indexWG.Done()
 			}(i, tmp)
@@ -248,6 +245,6 @@ func main() {
 	minutes := duration / 60
 	seconds := duration % 60
 
-	fmt.Printf("%s get news done, %d news added, %dm %ds used\n", time.Now().Format(consts.TimeFormat),
+	fmt.Printf("%s get video done, %d video added, %dm %ds used\n", time.Now().Format(consts.TimeFormat),
 		counter.Count(), minutes, seconds)
 }

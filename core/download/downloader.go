@@ -44,9 +44,10 @@ func downloadThrice(req *http.Request) (*http.Response, error) {
 		Timeout: time.Duration(5 * time.Second),
 	}
 	var err error
+	err = nil
 	var resp *http.Response
 	for i := 0; i < 3; i++ {
-		if i > 0 {
+		if err != nil {
 			log.Println("error while query url", req.URL.String(), "try again:", err.Error())
 		}
 		resp, err = client.Do(req)

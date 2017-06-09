@@ -137,8 +137,9 @@ func getThrice(link string) (resp *http.Response, err error) {
 	}
 	req.Header.Add("User-Agent", consts.UserAgent)
 
+	err = nil
 	for i := 0; i < 3; i++ {
-		if i > 0 {
+		if err != nil {
 			log.Println(err.Error(), "try again", link)
 		}
 		resp, err = client.Do(req)
@@ -197,7 +198,7 @@ func GetRedisStarID(client *redis.Client) (starIDMap, idStarMap map[string]strin
 		starIDMap[name] = starID
 		idStarMap[starID] = name
 	}
-	return starIDMap, idStarMap, nil
+	return FixStarNameMap(starIDMap), idStarMap, nil
 }
 
 //nicknameMap: map[nickname] = starID
@@ -219,7 +220,14 @@ func GetNickname(db *sql.DB) (NicknameMap map[string]string, err error) {
 			NicknameMap[nickname.String] = starID.String
 		}
 	}
-	return NicknameMap, nil
+	return FixStarNameMap(NicknameMap), nil
+}
+
+func FixStarNameMap(nameMap map[string]string) map[string]string {
+	delete(nameMap, "信")
+	delete(nameMap, "苹果")
+	delete(nameMap, "L")
+	return nameMap
 }
 
 //get input keys to lower case to make sure keys match
@@ -293,13 +301,13 @@ func ConvertStrings(input []sql.NullString) []string {
 //用于插入分页符
 //a	input string slice
 //sep	separator
-//m	gaps between two sep
+//m	gaps between two break
 func JoinWithBreak(a []string, brk string, sep string, m int) string {
 	if len(a) == 0 || m < 1 {
 		return ""
 	}
 	if len(a) <= m {
-		return strings.Join(a, "")
+		return strings.Join(a, sep)
 	}
 
 	remain := len(a) % m

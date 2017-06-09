@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/consts"
@@ -27,6 +26,7 @@ func (p *XWIndexProducer) Produce(ctxChan chan *news.SimpleCTX) {
 	req, _ := http.NewRequest("GET", "http://xw.qq.com/m/ent/", nil)
 	req.Header.Set("User-Agent", consts.MobileUA)
 	ctxChan <- news.NewSimpleCTX(req, &xwQQNewsExtractor{}, &xwImgReplacer{}, &xwIndexPageProcessor{})
+	//ctxChan <- news.NewSimpleCTX(req, &SinaNewsExtractor{}, &SinaImgReplacer{}, &SinaIndexProcessor{})
 }
 
 type xwImgReplacer struct {
@@ -40,7 +40,11 @@ func (p *xwImgReplacer) ReplaceImgs(n *news.NewsItem, folderPath, urlPrefix stri
 	for _, match := range matches {
 		if len(match) > 1 {
 			//fmt.Println("found news img:", match[1])
-			imgURL := match[1]
+			originURL := match[1]
+			imgURL := originURL
+			if strings.HasPrefix(imgURL, "//") {
+				imgURL = "http:" + imgURL
+			}
 			imgName, err := comm.DownloadImage(imgURL, folderPath)
 			if err != nil {
 				log.Println("error while download img", imgURL, err.Error())
@@ -49,7 +53,7 @@ func (p *xwImgReplacer) ReplaceImgs(n *news.NewsItem, folderPath, urlPrefix stri
 			tmpImg := news.GenNewsImg(n.GetNewsID(), n.Date, n.Title, folderPath, imgName, imgURL)
 			imgList = append(imgList, tmpImg)
 			newURL := urlPrefix + imgName
-			newsContent = strings.Replace(newsContent, imgURL, newURL, 1)
+			newsContent = strings.Replace(newsContent, originURL, newURL, 1)
 		}
 	}
 	isHidden := true
@@ -96,6 +100,11 @@ func (p *xwIndexPageProcessor) ProcessPage(indexPage *page.Page) []*item.ItemCTX
 	iter := newsLinkPath.Iter(root)
 	for iter.Next() {
 		newsURL := iter.Node().String()
+
+		if strings.HasPrefix(newsURL, "//") {
+			newsURL = "http:" + newsURL
+		}
+
 		req, err := http.NewRequest("GET", newsURL, nil)
 		if err != nil {
 			log.Println("error while parse http request:", newsURL, err.Error())
@@ -104,7 +113,9 @@ func (p *xwIndexPageProcessor) ProcessPage(indexPage *page.Page) []*item.ItemCTX
 		ctx := item.NewItemCTX(req, nil, nil)
 		ctxList = append(ctxList, ctx)
 	}
-	fmt.Println(time.Now().Format(consts.TimeFormat), "get xw qq news context length:", len(ctxList))
-
 	return ctxList
+}
+
+func (p *xwIndexPageProcessor) GetIndexName() string {
+	return fmt.Sprint("update xw qq news")
 }

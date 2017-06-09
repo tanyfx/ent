@@ -7,6 +7,7 @@ package qqvideo
 import (
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/tanyfx/ent/comm/video"
 	"github.com/tanyfx/ent/core/page"
@@ -14,13 +15,17 @@ import (
 
 const qqVideoPrefix string = "http://v.qq.com/iframe/player.html?tiny=0&auto=0&vid="
 
-func extractMobileQQVideo(p *page.Page) *video.VideoItem {
+type mobileQQVideoExtractor struct {
+}
+
+func (p *mobileQQVideoExtractor) ExtractVideo(vPage *page.Page) *video.VideoItem {
+	metaMap := vPage.GetMeta()
 	v := &video.VideoItem{}
 	vInfoRegexp := regexp.MustCompile(`tlux\.dispatch\('\$video'[\w\W]+?;`)
 	titleRegexp := regexp.MustCompile(`"title":"(.*?)"`)
 	vidRegexp := regexp.MustCompile(`"vid":"(.*?)"`)
 
-	info := vInfoRegexp.FindString(string(p.GetBody()))
+	info := vInfoRegexp.FindString(string(vPage.GetBody()))
 	if len(info) == 0 {
 		return v
 	}
@@ -32,6 +37,9 @@ func extractMobileQQVideo(p *page.Page) *video.VideoItem {
 	if len(vidMatch) > 1 {
 		v.Link = qqVideoPrefix + strings.TrimSpace(vidMatch[1])
 	}
-
+	v.Date = metaMap[video.VideoDate]
+	if len(v.Date) == 0 {
+		v.Date = time.Now().Format("2006-01-02 15:04:05")
+	}
 	return v
 }

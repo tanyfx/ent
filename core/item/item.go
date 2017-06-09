@@ -73,9 +73,9 @@ func ItemWorker(ctxChan chan *ItemCTX, counter *comm.Counter, wg *sync.WaitGroup
 		}
 
 		//DEBUG
-		if err != nil {
-			log.Println("item worker get error:", err.Error())
-		}
+		//if err != nil {
+		//	log.Println("[DEBUG] item worker get error:", err.Error())
+		//}
 	}
 	log.Println("item worker", index, "stopped")
 }

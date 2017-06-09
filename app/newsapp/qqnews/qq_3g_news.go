@@ -12,7 +12,6 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/consts"
@@ -134,6 +133,10 @@ func (p *qq3gIndexPageProcessor) ProcessPage(indexPage *page.Page) []*item.ItemC
 		ctx := item.NewItemCTX(req, nil, nil)
 		ctxList = append(ctxList, ctx)
 	}
-	fmt.Println(time.Now().Format(consts.TimeFormat), "get 3g qq news context length:", len(ctxList))
+	//fmt.Println(time.Now().Format(consts.TimeFormat), "get 3g qq news context length:", len(ctxList))
 	return ctxList
+}
+
+func (p *qq3gIndexPageProcessor) GetIndexName() string {
+	return fmt.Sprint("update 3g qq news")
 }

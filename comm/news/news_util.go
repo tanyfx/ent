@@ -64,7 +64,11 @@ func ReplaceQQVideoIframe(n *NewsItem, folderPath, urlPrefix string, isHidden bo
 		newStrList := []string{}
 		imgMatch := imgRegexp.FindStringSubmatch(m)
 		if len(imgMatch) == 2 {
-			imgURL := imgMatch[1]
+			originURL := imgMatch[1]
+			imgURL := originURL
+			if strings.HasPrefix(imgURL, "//") {
+				imgURL = "http:" + imgURL
+			}
 			//fmt.Println(time.Now().Format(util.TimeFormat), "found img URL:", imgMatch[1])
 			imgName, err := comm.DownloadImage(imgURL, folderPath)
 			if err != nil {

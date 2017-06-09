@@ -48,22 +48,14 @@ func (p *Deduper) addRepeatedDoc(doc Doc) {
 
 func (p *Deduper) PushOne(str, docID string) (int, bool) {
 	tmpDoc := NewDoc(str, docID, p.seg)
-
 	return p.PushDoc(tmpDoc)
 }
 
 func (p *Deduper) PushDoc(doc Doc) (int, bool) {
-
 	//DEBUG
-	//log.Printf("tmpdoc status: text: %s\twords bag length: %d\n", doc.Text, len(doc.wordsBag))
-	//a := []string{}
-	//for k := range doc.wordsBag {
-	//	a = append(a, k)
-	//}
-	//log.Println("words bag:", strings.Join(a, " "))
+	//log.Println("[DEBUG] start push doc", doc.Text)
 
-	//DEBUG
-	//log.Println("deduper doc length:", len(p.repeatedDocs), len(p.newDocs), len(p.oldDocs))
+	//log.Println("repeated doc length:", len(p.repeatedDocs))
 
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -72,28 +64,40 @@ func (p *Deduper) PushDoc(doc Doc) (int, bool) {
 		doc.wordsBag = genWordsBag(doc.Text, p.seg, p.replacer)
 	}
 
-	tmp, found := FindSimDoc(doc, p.repeatedDocs, p.limitCount, p.simScore)
+	tmp, found := findSimDoc(doc, p.repeatedDocs, p.limitCount, p.simScore)
 	if found {
-		fmt.Printf("%s find repeated, origin: id: %s doc: %s\n", consts.TimeFormat, tmp.DocID, tmp.Text)
+		fmt.Printf("%s find repeated, origin id: %s, doc: %s\n", consts.TimeFormat, tmp.DocID, tmp.Text)
+
+		//DEBUG
+		//log.Println("[DEBUG] push doc done", doc.Text)
 		return -1, false
 	}
 
-	tmp, found = FindSimDoc(doc, p.newDocs, p.limitCount, p.simScore)
+	tmp, found = findSimDoc(doc, p.newDocs, p.limitCount, p.simScore)
 	if found {
 		p.addRepeatedDoc(tmp)
-		fmt.Printf("%s find repeated, origin: id: %s doc: %s\n", consts.TimeFormat, tmp.DocID, tmp.Text)
+		fmt.Printf("%s find repeated, origin id: %s, doc: %s\n", consts.TimeFormat, tmp.DocID, tmp.Text)
+
+		//DEBUG
+		//log.Println("[DEBUG] push doc done", doc.Text)
 		return -1, false
 	}
 
-	tmp, found = FindSimDoc(doc, p.oldDocs, p.limitCount, p.simScore)
+	tmp, found = findSimDoc(doc, p.oldDocs, p.limitCount, p.simScore)
 	if found {
 		p.addRepeatedDoc(tmp)
-		fmt.Printf("%s find repeated, origin: id: %s doc: %s\n", consts.TimeFormat, tmp.DocID, tmp.Text)
+		fmt.Printf("%s find repeated, origin id: %s, doc: %s\n", consts.TimeFormat, tmp.DocID, tmp.Text)
+
+		//DEBUG
+		//log.Println("[DEBUG] push doc done", doc.Text)
 		return -1, false
 	}
 
 	n := len(p.newDocs)
 	p.newDocs = append(p.newDocs, doc)
+
+	//DEBUG
+	//log.Println("[DEBUG] push doc done", doc.Text)
 	return n, true
 }
 
@@ -115,20 +119,19 @@ func (p *Deduper) FindDoc(doc Doc) (Doc, bool) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	res, found = FindSimDoc(doc, p.newDocs, p.limitCount, p.simScore)
+	res, found = findSimDoc(doc, p.repeatedDocs, p.limitCount, p.simScore)
 	if found {
 		return res, found
 	}
 
-	res, found = FindSimDoc(doc, p.newDocs, p.limitCount, p.simScore)
+	res, found = findSimDoc(doc, p.newDocs, p.limitCount, p.simScore)
 	if found {
 		p.addRepeatedDoc(res)
 		return res, found
 	}
-	res, found = FindSimDoc(doc, p.oldDocs, p.limitCount, p.simScore)
+	res, found = findSimDoc(doc, p.oldDocs, p.limitCount, p.simScore)
 	if found {
 		p.addRepeatedDoc(res)
 	}
 	return res, found
-	//p.recentDocs = append(p.recentDocs, doc)
 }

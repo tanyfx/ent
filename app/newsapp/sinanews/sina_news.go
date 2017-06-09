@@ -26,13 +26,13 @@ type SinaUpdateProducer struct {
 func (p *SinaUpdateProducer) Produce(ctxChan chan *news.SimpleCTX) {
 	req, _ := http.NewRequest("GET", "http://ent.sina.cn/", nil)
 	req.Header.Set("User-Agent", consts.MobileUA)
-	ctxChan <- news.NewSimpleCTX(req, &SinaNewsExtractor{}, &SinaImgReplacer{}, &SinaIndexProcessor{})
+	ctxChan <- news.NewSimpleCTX(req, &sinaNewsExtractor{}, &sinaImgReplacer{}, &sinaIndexProcessor{})
 }
 
-type SinaImgReplacer struct {
+type sinaImgReplacer struct {
 }
 
-func (p *SinaImgReplacer) ReplaceImgs(n *news.NewsItem, folderPath, urlPrefix string) (string, []news.NewsImg) {
+func (p *sinaImgReplacer) ReplaceImgs(n *news.NewsItem, folderPath, urlPrefix string) (string, []news.NewsImg) {
 	newsContent := n.Content
 	imgList := []news.NewsImg{}
 	imgStrRegexp := regexp.MustCompile(`<img.+?>`)
@@ -64,10 +64,10 @@ func (p *SinaImgReplacer) ReplaceImgs(n *news.NewsItem, folderPath, urlPrefix st
 	return newsContent, imgList
 }
 
-type SinaNewsExtractor struct {
+type sinaNewsExtractor struct {
 }
 
-func (p *SinaNewsExtractor) ExtractNews(newsPage *page.Page) *news.NewsItem {
+func (p *sinaNewsExtractor) ExtractNews(newsPage *page.Page) *news.NewsItem {
 	n := &news.NewsItem{
 		Link: newsPage.GetRequest().URL.String(),
 	}
@@ -110,10 +110,10 @@ func (p *SinaNewsExtractor) ExtractNews(newsPage *page.Page) *news.NewsItem {
 	return n
 }
 
-type SinaIndexProcessor struct {
+type sinaIndexProcessor struct {
 }
 
-func (p *SinaIndexProcessor) ProcessPage(indexPage *page.Page) []*item.ItemCTX {
+func (p *sinaIndexProcessor) ProcessPage(indexPage *page.Page) []*item.ItemCTX {
 	ctxList := []*item.ItemCTX{}
 
 	//newsLinkXpath := xmlpath.MustCompile(`//div[@class="carditems_box"]/div/a/@href`)
@@ -144,10 +144,11 @@ func (p *SinaIndexProcessor) ProcessPage(indexPage *page.Page) []*item.ItemCTX {
 		ctx := item.NewItemCTX(req, nil, nil)
 		ctxList = append(ctxList, ctx)
 	}
-
-	fmt.Println(time.Now().Format(consts.TimeFormat), "get sina news context length:", len(ctxList))
-
 	return ctxList
+}
+
+func (p *sinaIndexProcessor) GetIndexName() string {
+	return fmt.Sprint("update sina news")
 }
 
 //新浪新闻的图片src为一张空白图片，由js后续下载替换，故需要处理img标签，将空白图片src替换为实际图片src

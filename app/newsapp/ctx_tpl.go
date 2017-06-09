@@ -44,3 +44,7 @@ type indexProcessor struct {
 func (p *indexProcessor) ProcessPage(indexPage *page.Page) []*item.ItemCTX {
 	return []*item.ItemCTX{}
 }
+
+func (p *indexProcessor) GetIndexName() string {
+	return ""
+}

@@ -40,3 +40,28 @@ func (p *VideoDownloader) Download(req *http.Request) *page.Page {
 	}
 	return p.downloader.Download(req)
 }
+
+type SimpleVideoDownloader struct {
+	RedisCli *redis.Client
+}
+
+func GenSimpleVideoDownloader(redisCli *redis.Client) *SimpleVideoDownloader {
+	return &SimpleVideoDownloader{
+		RedisCli: redisCli,
+	}
+}
+
+func (p *SimpleVideoDownloader) Download(req *http.Request) *page.Page {
+	respPage := page.NewPage(req)
+	exists, err := redisutil.ExistVideoLink(p.RedisCli, req.URL.String())
+	if err != nil {
+		log.Println("error while find video link in redis", err.Error(), req.URL.String())
+	}
+	if exists {
+		errMsg := fmt.Sprintf("video link exists: %s", req.URL.String())
+		respPage.SetStatus(false, errMsg)
+		return respPage
+	}
+	respPage.SetStatus(true, "")
+	return respPage
+}

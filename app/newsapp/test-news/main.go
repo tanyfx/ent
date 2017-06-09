@@ -46,6 +46,7 @@ func (p *SimpleProcessor) Valid() bool {
 
 var folderPath string
 var urlPrefix string
+var starPairMap map[string]comm.StarIDPair //for news search
 var err error
 
 var updateProducers = []news.NewsUpdateProducer{
@@ -63,11 +64,21 @@ func Init() error {
 	if err != nil {
 		return err
 	}
+
+	starPairMap = map[string]comm.StarIDPair{
+		"范冰冰": {
+			StarID: "17",
+			NameCN: "范冰冰",
+		},
+		"孙俪": {
+			StarID: "3",
+			NameCN: "孙俪",
+		},
+	}
 	return nil
 }
 
 func main() {
-
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	if err := Init(); err != nil {
@@ -108,11 +119,19 @@ func main() {
 	}()
 
 	simpleWG.Add(len(updateProducers))
-	for _, producer := range updateProducers {
-		go func() {
+	for _, tmp := range updateProducers {
+		go func(producer news.NewsUpdateProducer) {
 			producer.Produce(simpleChan)
 			simpleWG.Done()
-		}()
+		}(tmp)
+	}
+
+	simpleWG.Add(len(searchProducers))
+	for _, tmp := range searchProducers {
+		go func(producer news.NewsSearchProducer) {
+			producer.Produce(simpleChan, starPairMap)
+			simpleWG.Done()
+		}(tmp)
 	}
 
 	simpleWG.Wait()

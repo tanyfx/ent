@@ -23,6 +23,14 @@ type VideoItem struct {
 	Stars []comm.StarIDPair
 }
 
+//termTaxonomyID, starNameCN, content string, videos []string
+type VideoPost struct {
+	termTaxonomyID string
+	starNameCN     string
+	content        string
+	videoList      []string
+}
+
 func NewVideoItem(title, date, link string) *VideoItem {
 	return &VideoItem{
 		Title: title,
