@@ -2,11 +2,12 @@
 
 ## Usage
 
+```
 git clone https://github.com/tanyfx/ent
 
 cd $GOPATH/src/github.com/tanyfx/ent
 dep ensure -v -update
-
+```
 
 ## Test news
 make sure that you have the permission to read/write **/home/img/news_img**
