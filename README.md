@@ -1,6 +1,6 @@
 ## Simple entertainment news spider
 
-##Usage
+## Usage
 
 git clone https://github.com/tanyfx/ent
 
@@ -8,7 +8,7 @@ cd $GOPATH/src/github.com/tanyfx/ent
 dep ensure -v -update
 
 
-##test news
+## Test news
 make sure that you have the permission to read/write **/home/img/news_img**
 simplely
 ```
@@ -24,7 +24,7 @@ go build
 ```
 
 
-##test video
+## Test video
 ```
 cd $GOPATH/src/github.com/tanyfx/ent/app/videoapp/test-video
 go build
