@@ -5,27 +5,28 @@
 package main
 
 import (
-	"sync"
-	"flag"
-	"log"
 	"bufio"
-	"os"
-	"time"
-	"fmt"
-	"errors"
 	"database/sql"
+	"errors"
+	"flag"
+	"fmt"
+	"log"
+	"os"
+	"sync"
+	"time"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/huichen/sego"
-	"gopkg.in/redis.v5"
+	"github.com/tanyfx/ent/app/newsapp/qqnews"
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/consts"
 	"github.com/tanyfx/ent/comm/news"
 	"github.com/tanyfx/ent/comm/textutil"
 	"github.com/tanyfx/ent/comm/wordpressutil"
-	"github.com/tanyfx/ent/core/item"
-	"github.com/tanyfx/ent/core/index"
 	"github.com/tanyfx/ent/core/download"
-	"github.com/tanyfx/ent/app/newsapp/qqnews"
+	"github.com/tanyfx/ent/core/index"
+	"github.com/tanyfx/ent/core/item"
+	"gopkg.in/redis.v5"
 )
 
 var confFile = flag.String("c", "db.conf", "db conf file")
@@ -39,10 +40,10 @@ var seg *sego.Segmenter
 var newsRedisCli *redis.Client
 var folderPath string
 var urlPrefix string
-var starTagger *comm.StarTagger                        //extract star tag from title
+var starTagger *comm.StarTagger //extract star tag from title
 var newsDeduper *textutil.Deduper
-var starTaxonomyMap map[string]string                //for saving to wordpress: star_id -> term_taxonomy_id
-var starPairMap map[string]comm.StarIDPair        //for news search
+var starTaxonomyMap map[string]string      //for saving to wordpress: star_id -> term_taxonomy_id
+var starPairMap map[string]comm.StarIDPair //for news search
 var itemDownloader *news.NewsDownloader
 
 var updateProducers = []news.NewsUpdateProducer{
@@ -77,9 +78,9 @@ func Init() error {
 	seg.LoadDictionary(*dictFile)
 
 	newsRedisCli = redis.NewClient(&redis.Options{
-		Addr: redisAddr,
+		Addr:     redisAddr,
 		Password: redisPasswd,
-		DB: consts.RedisNewsDB,
+		DB:       consts.RedisNewsDB,
 	})
 
 	if err = newsRedisCli.Ping().Err(); err != nil {
@@ -89,9 +90,9 @@ func Init() error {
 	//defer newsRedisCli.Close()
 
 	starRedisCli := redis.NewClient(&redis.Options{
-		Addr: redisAddr,
+		Addr:     redisAddr,
 		Password: redisPasswd,
-		DB: consts.RedisStarDB,
+		DB:       consts.RedisStarDB,
 	})
 
 	if err = starRedisCli.Ping().Err(); err != nil {
@@ -218,7 +219,7 @@ func main() {
 
 	producerWG := &sync.WaitGroup{}
 
-	if (*update) {
+	if *update {
 		producerWG.Add(len(updateProducers))
 		for i, producer := range updateProducers {
 			log.Println("run update index producer:", i)
@@ -230,7 +231,7 @@ func main() {
 		}
 	}
 
-	if (*search) {
+	if *search {
 		producerWG.Add(len(searchProducers))
 		for i, producer := range searchProducers {
 			log.Println("run search index producer:", i)

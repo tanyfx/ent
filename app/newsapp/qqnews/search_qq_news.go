@@ -1,26 +1,26 @@
 //author tyf
 //date   2017-02-17 14:31
-//desc 
+//desc
 
 package qqnews
 
 import (
 	"fmt"
 	"log"
-	"time"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
-	"gopkg.in/xmlpath.v2"
-	"golang.org/x/text/transform"
 	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
+	"gopkg.in/xmlpath.v2"
 
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/consts"
 	"github.com/tanyfx/ent/comm/news"
-	"github.com/tanyfx/ent/core/page"
 	"github.com/tanyfx/ent/core/item"
+	"github.com/tanyfx/ent/core/page"
 )
 
 type QQSearchIndexProducer struct {

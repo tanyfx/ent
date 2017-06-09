@@ -1,18 +1,19 @@
 //author tyf
 //date   2017-02-09 18:10
-//desc 
+//desc
 
 package redisutil
 
 import (
-	"strings"
 	"database/sql"
-	"log"
-	"fmt"
-	"gopkg.in/redis.v5"
 	"errors"
+	"fmt"
+	"log"
+	"strings"
+
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/consts"
+	"gopkg.in/redis.v5"
 )
 
 func GenVideoList(db *sql.DB) []SimpleVideo {
@@ -48,9 +49,9 @@ func getVideoList(db *sql.DB) []SimpleVideo {
 			continue
 		}
 		tmpVideo := SimpleVideo{
-			VideoID: tmpVideoID.String,
-			Title: tmpTitle.String,
-			Link: tmpLink.String,
+			VideoID:   tmpVideoID.String,
+			Title:     tmpTitle.String,
+			Link:      tmpLink.String,
 			VideoDate: tmpDate.String,
 		}
 		resultList = append(resultList, tmpVideo)
@@ -85,7 +86,7 @@ func getVideoStarMap(db *sql.DB) map[string][]comm.StarIDPair {
 		if pairs, found := resultMap[tmpVideoID.String]; found {
 			resultMap[tmpVideoID.String] = append(pairs, tmpPair)
 		} else {
-			resultMap[tmpVideoID.String] = []comm.StarIDPair{tmpPair }
+			resultMap[tmpVideoID.String] = []comm.StarIDPair{tmpPair}
 		}
 	}
 	return resultMap

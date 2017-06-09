@@ -1,6 +1,6 @@
 //author tyf
 //date   2017-02-07 15:01
-//desc 
+//desc
 
 package consts
 

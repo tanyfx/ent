@@ -1,27 +1,28 @@
 //author tyf
 //date   2017-02-10 15:34
-//desc 
+//desc
 
 package news
 
 import (
-	"gopkg.in/redis.v5"
-	"net/http"
-	"log"
 	"fmt"
-	"github.com/tanyfx/ent/core/page"
-	"github.com/tanyfx/ent/core/download"
+	"log"
+	"net/http"
+
 	"github.com/tanyfx/ent/comm/redisutil"
+	"github.com/tanyfx/ent/core/download"
+	"github.com/tanyfx/ent/core/page"
+	"gopkg.in/redis.v5"
 )
 
 type NewsDownloader struct {
-	RedisCli *redis.Client
+	RedisCli   *redis.Client
 	downloader *download.HttpDownloader
 }
 
 func GenNewsDownloader(newsRedisCli *redis.Client) *NewsDownloader {
 	return &NewsDownloader{
-		RedisCli: newsRedisCli,
+		RedisCli:   newsRedisCli,
 		downloader: &download.HttpDownloader{},
 	}
 }

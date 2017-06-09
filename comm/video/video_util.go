@@ -5,17 +5,18 @@
 package video
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"log"
-	"time"
-	"errors"
 	"strconv"
 	"strings"
-	"database/sql"
-	"gopkg.in/redis.v5"
+	"time"
+
 	"github.com/huichen/sego"
 	"github.com/tanyfx/ent/comm/consts"
 	"github.com/tanyfx/ent/comm/textutil"
+	"gopkg.in/redis.v5"
 )
 
 func genVideoDeduper(videoRedisCli *redis.Client, seg *sego.Segmenter) (*textutil.Deduper, error) {
@@ -106,29 +107,29 @@ func saveVideoRedisKey(redisCli *redis.Client, v *VideoItem) error {
 	videoLink := strings.TrimSpace(v.Link)
 
 	videoMap := map[string]string{
-		VideoTitle : videoTitle,
-		VideoLink : videoLink,
-		VideoDate : v.Date,
+		VideoTitle: videoTitle,
+		VideoLink:  videoLink,
+		VideoDate:  v.Date,
 	}
 	if len(stars) > 0 {
 		videoMap["star_pairs"] = stars
 	}
-	if err := redisCli.HMSet(consts.RedisVIDPrefix + v.videoID, videoMap).Err(); err != nil {
+	if err := redisCli.HMSet(consts.RedisVIDPrefix+v.videoID, videoMap).Err(); err != nil {
 		return errors.New("error while hmset video:" + v.videoID + " " + err.Error())
 	}
 
-	if err := redisCli.Set(consts.RedisVTitlePrefix + videoTitle, consts.RedisVIDPrefix + v.videoID, 0).Err(); err != nil {
+	if err := redisCli.Set(consts.RedisVTitlePrefix+videoTitle, consts.RedisVIDPrefix+v.videoID, 0).Err(); err != nil {
 		errStr := fmt.Sprintln("error while set video title key:", v.videoID, v.Title, err.Error())
 		return errors.New(errStr)
 	}
 
-	if err := redisCli.Set(consts.RedisVLinkPrefix + videoLink, consts.RedisVIDPrefix + v.videoID, 0).Err(); err != nil {
+	if err := redisCli.Set(consts.RedisVLinkPrefix+videoLink, consts.RedisVIDPrefix+v.videoID, 0).Err(); err != nil {
 		errStr := fmt.Sprintln("error while set video link key:", v.videoID, v.Link, err.Error())
 		return errors.New(errStr)
 	}
 
-	redisCli.Expire(consts.RedisVTitlePrefix + videoTitle, consts.Year)
-	redisCli.Expire(consts.RedisVLinkPrefix + videoLink, consts.Year)
-	redisCli.Expire(consts.RedisVIDPrefix + v.videoID, consts.Year)
+	redisCli.Expire(consts.RedisVTitlePrefix+videoTitle, consts.Year)
+	redisCli.Expire(consts.RedisVLinkPrefix+videoLink, consts.Year)
+	redisCli.Expire(consts.RedisVIDPrefix+v.videoID, consts.Year)
 	return nil
 }

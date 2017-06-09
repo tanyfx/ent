@@ -1,6 +1,6 @@
 //author tyf
 //date   2017-02-10 14:20
-//desc 
+//desc
 
 package comm
 
@@ -15,7 +15,7 @@ type Counter struct {
 
 func NewCounter() *Counter {
 	return &Counter{
-		mu: &sync.Mutex{},
+		mu:    &sync.Mutex{},
 		count: 0,
 	}
 }

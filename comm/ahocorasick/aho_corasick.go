@@ -1,6 +1,6 @@
 //author tyf
 //date   2017-02-06 17:08
-//desc 
+//desc
 
 // ahocorasick.go: implementation of the Aho-Corasick string matching
 // algorithm. Actually implemented as matching against []byte rather
@@ -21,46 +21,46 @@ import (
 
 // A node in the trie structure used to implement Aho-Corasick
 type node struct {
-	root    bool       // true if this is the root
+	root bool // true if this is the root
 
-	b       []byte     // The blice at this node
+	b []byte // The blice at this node
 
-	output  bool       // True means this node represents a blice that should
-			   // be output when matching
-	index   int        // index into original dictionary if output is true
+	output bool // True means this node represents a blice that should
+	// be output when matching
+	index int // index into original dictionary if output is true
 
-	counter int        // Set to the value of the Matcher.counter when a
-			   // match is output to prevent duplicate output
+	counter int // Set to the value of the Matcher.counter when a
+	// match is output to prevent duplicate output
 
-			   // The use of fixed size arrays is space-inefficient but fast for
-			   // lookups.
+	// The use of fixed size arrays is space-inefficient but fast for
+	// lookups.
 
-	child   [256]*node // A non-nil entry in this array means that the
-			   // index represents a byte value which can be
-			   // appended to the current node. Blices in the
-			   // trie are built up byte by byte through these
-			   // child node pointers.
+	child [256]*node // A non-nil entry in this array means that the
+	// index represents a byte value which can be
+	// appended to the current node. Blices in the
+	// trie are built up byte by byte through these
+	// child node pointers.
 
-	fails   [256]*node // Where to fail to (by following the fail
-			   // pointers) for each possible byte
+	fails [256]*node // Where to fail to (by following the fail
+	// pointers) for each possible byte
 
-	suffix  *node      // Pointer to the longest possible strict suffix of
-			   // this node
+	suffix *node // Pointer to the longest possible strict suffix of
+	// this node
 
-	fail    *node      // Pointer to the next node which is in the dictionary
-			   // which can be reached from here following suffixes. Called fail
-			   // because it is used to fallback in the trie when a match fails.
+	fail *node // Pointer to the next node which is in the dictionary
+	// which can be reached from here following suffixes. Called fail
+	// because it is used to fallback in the trie when a match fails.
 }
 
 // Matcher is returned by NewMatcher and contains a list of blices to
 // match against
 type Matcher struct {
-	counter int    // Counts the number of matches done, and is used to
-		       // prevent output of multiple matches of the same string
-	trie    []node // preallocated block of memory containing all the
-		       // nodes
-	extent  int    // offset into trie that is currently free
-	root    *node  // Points to trie[0]
+	counter int // Counts the number of matches done, and is used to
+	// prevent output of multiple matches of the same string
+	trie []node // preallocated block of memory containing all the
+	// nodes
+	extent int   // offset into trie that is currently free
+	root   *node // Points to trie[0]
 }
 
 // finndBlice looks for a blice in the trie starting from the root and
@@ -87,7 +87,7 @@ func (m *Matcher) getFreeNode() *node {
 		m.root.root = true
 	}
 
-	return &m.trie[m.extent - 1]
+	return &m.trie[m.extent-1]
 }
 
 // buildTrie builds the fundamental trie structure from a set of

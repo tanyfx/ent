@@ -5,10 +5,11 @@
 package textutil
 
 import (
+	"log"
 	"testing"
+
 	"github.com/huichen/sego"
 	"github.com/tanyfx/ent/comm/consts"
-	"log"
 )
 
 func TestFindSimDoc(t *testing.T) {

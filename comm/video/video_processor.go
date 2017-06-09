@@ -5,17 +5,18 @@
 package video
 
 import (
-	"errors"
-	"log"
-	"fmt"
-	"time"
 	"database/sql"
-	"gopkg.in/redis.v5"
+	"errors"
+	"fmt"
+	"log"
+	"time"
+
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/consts"
-	"github.com/tanyfx/ent/comm/textutil"
 	"github.com/tanyfx/ent/comm/redisutil"
+	"github.com/tanyfx/ent/comm/textutil"
 	"github.com/tanyfx/ent/core/page"
+	"gopkg.in/redis.v5"
 )
 
 type VideoExtractor interface {
@@ -40,13 +41,13 @@ func GenVideoProcessor(extractor VideoExtractor) *VideoProcessor {
 }
 
 func InitVideoProcessor(extractor VideoExtractor, db *sql.DB, redisCli *redis.Client, deduper *textutil.Deduper,
-starTagger *comm.StarTagger, starTaxonomyMap map[string]string) *VideoProcessor {
+	starTagger *comm.StarTagger, starTaxonomyMap map[string]string) *VideoProcessor {
 	return &VideoProcessor{
-		extractor: extractor,
-		db: db,
-		redisCli: redisCli,
-		deduper: deduper,
-		starTagger: starTagger,
+		extractor:       extractor,
+		db:              db,
+		redisCli:        redisCli,
+		deduper:         deduper,
+		starTagger:      starTagger,
 		starTaxonomyMap: starTaxonomyMap,
 	}
 }
@@ -109,7 +110,7 @@ func (p *VideoProcessor) ProcessPage(vItemPage *page.Page) error {
 }
 
 func (p *VideoProcessor) Init(extractor VideoExtractor, db *sql.DB, redisCli *redis.Client, deduper *textutil.Deduper,
-starTagger *comm.StarTagger, starTaxonomyMap map[string]string) *VideoProcessor {
+	starTagger *comm.StarTagger, starTaxonomyMap map[string]string) *VideoProcessor {
 	if extractor != nil {
 		p.extractor = extractor
 	}

@@ -1,20 +1,21 @@
 //author tyf
 //date   2017-02-14 15:56
-//desc 
+//desc
 
 package news
 
 import (
-	"strings"
-	"fmt"
-	"gopkg.in/redis.v5"
-	"errors"
 	"database/sql"
-	"time"
+	"errors"
+	"fmt"
 	"log"
 	"strconv"
+	"strings"
+	"time"
+
 	"github.com/tanyfx/ent/comm/consts"
 	"github.com/tanyfx/ent/comm/wordpressutil"
+	"gopkg.in/redis.v5"
 )
 
 func saveNews(db *sql.DB, redisCli *redis.Client, n *NewsItem, starTaxonomyMap map[string]string) error {
@@ -116,13 +117,13 @@ func saveToWordpress(db *sql.DB, n *NewsItem, starTaxonomyMap map[string]string)
 	}
 
 	tmpPost := &wordpressutil.Post{
-		PostDate: n.Date,
-		PostContent: n.Content,
-		PostTitle: n.Title,
-		PostName: n.newsID,
-		PostExcerpt: n.Summary,
-		CommentStatus: "open",
-		PostCateID: consts.NewsCateID,
+		PostDate:           n.Date,
+		PostContent:        n.Content,
+		PostTitle:          n.Title,
+		PostName:           n.newsID,
+		PostExcerpt:        n.Summary,
+		CommentStatus:      "open",
+		PostCateID:         consts.NewsCateID,
 		TermTaxonomyIDList: termTaxonomyIDList,
 	}
 
@@ -177,22 +178,22 @@ func saveNewsRedisKey(n *NewsItem, redisCli *redis.Client) error {
 	}
 
 	//if err := client.HMSet("news_id:" + n.NewsID, newsMap).Err(); err != nil {
-	if err := redisCli.HMSet(consts.RedisNIDPrefix + n.newsID, newsMap).Err(); err != nil {
+	if err := redisCli.HMSet(consts.RedisNIDPrefix+n.newsID, newsMap).Err(); err != nil {
 		return errors.New("error while HMSet news:" + n.newsID + " " + err.Error())
 	}
 	//if err := redisCli.Set("news_title:" + newsTitle, "news_id:" + n.newsID, 0).Err(); err != nil {
-	if err := redisCli.Set(consts.RedisNTitlePrefix + newsTitle, consts.RedisNIDPrefix + n.newsID, 0).Err(); err != nil {
+	if err := redisCli.Set(consts.RedisNTitlePrefix+newsTitle, consts.RedisNIDPrefix+n.newsID, 0).Err(); err != nil {
 		errStr := fmt.Sprintln("error while Set news title key:", n.newsID, n.Title, err.Error())
 		return errors.New(errStr)
 	}
 	//if err := redisCli.Set("news_link:" + newsLink, "news_id:" + n.newsID, 0).Err(); err != nil {
-	if err := redisCli.Set(consts.RedisNLinkPrefix + newsLink, consts.RedisNIDPrefix + n.newsID, 0).Err(); err != nil {
+	if err := redisCli.Set(consts.RedisNLinkPrefix+newsLink, consts.RedisNIDPrefix+n.newsID, 0).Err(); err != nil {
 		errStr := fmt.Sprintln("error while Set news link key:", n.newsID, n.Link, err.Error())
 		return errors.New(errStr)
 	}
 
-	redisCli.Expire(consts.RedisNTitlePrefix + newsTitle, consts.Year)
-	redisCli.Expire(consts.RedisNLinkPrefix + newsLink, consts.Year)
-	redisCli.Expire(consts.RedisNIDPrefix + n.newsID, consts.Year)
+	redisCli.Expire(consts.RedisNTitlePrefix+newsTitle, consts.Year)
+	redisCli.Expire(consts.RedisNLinkPrefix+newsLink, consts.Year)
+	redisCli.Expire(consts.RedisNIDPrefix+n.newsID, consts.Year)
 	return nil
 }

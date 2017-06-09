@@ -1,15 +1,16 @@
 //author tyf
 //date   2017-02-15 18:44
-//desc 
+//desc
 
 package toutiaonews
 
 import (
-	"gopkg.in/xmlpath.v2"
-	"strings"
 	"log"
+	"strings"
+
 	"github.com/tanyfx/ent/core/item"
 	"github.com/tanyfx/ent/core/page"
+	"gopkg.in/xmlpath.v2"
 )
 
 type ToutiaoSearchIndexProcessor struct {

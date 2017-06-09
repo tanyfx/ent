@@ -1,6 +1,6 @@
 //author tyf
 //date   2017-02-06 17:01
-//desc 
+//desc
 
 package comm
 
@@ -13,7 +13,7 @@ type StarIDPair struct {
 }
 
 type StarTagger struct {
-	acMatcher   *ahocorasick.Matcher
+	acMatcher *ahocorasick.Matcher
 
 	idStarMap   map[string]string //starMap star_id -> star_name
 	nicknameMap map[string]string //nickname -> star_id
@@ -26,8 +26,8 @@ func NewStarTagger(starMap map[string]string) *StarTagger {
 		idStarMap[id] = name
 	}
 	return &StarTagger{
-		acMatcher: ahocorasick.NewMapMatcher(starMap),
-		idStarMap: idStarMap,
+		acMatcher:   ahocorasick.NewMapMatcher(starMap),
+		idStarMap:   idStarMap,
 		nicknameMap: starMap,
 	}
 }
@@ -36,8 +36,8 @@ func NewStarTagger(starMap map[string]string) *StarTagger {
 //nicknameMap: nickname -> star_id
 func NewStarNicknameTagger(idStarMap, nicknameMap map[string]string) *StarTagger {
 	return &StarTagger{
-		acMatcher: ahocorasick.NewMapMatcher(nicknameMap),
-		idStarMap: idStarMap,
+		acMatcher:   ahocorasick.NewMapMatcher(nicknameMap),
+		idStarMap:   idStarMap,
 		nicknameMap: nicknameMap,
 	}
 }

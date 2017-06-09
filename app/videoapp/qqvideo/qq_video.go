@@ -1,21 +1,21 @@
 //author tyf
 //date   2017-02-18 15:10
-//desc 
+//desc
 
 package qqvideo
 
 import (
 	"regexp"
 	"strings"
-	"github.com/tanyfx/ent/core/page"
+
 	"github.com/tanyfx/ent/comm/video"
+	"github.com/tanyfx/ent/core/page"
 )
 
 const qqVideoPrefix string = "http://v.qq.com/iframe/player.html?tiny=0&auto=0&vid="
 
 func extractMobileQQVideo(p *page.Page) *video.VideoItem {
-	v := &video.VideoItem{
-	}
+	v := &video.VideoItem{}
 	vInfoRegexp := regexp.MustCompile(`tlux\.dispatch\('\$video'[\w\W]+?;`)
 	titleRegexp := regexp.MustCompile(`"title":"(.*?)"`)
 	vidRegexp := regexp.MustCompile(`"vid":"(.*?)"`)

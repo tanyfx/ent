@@ -5,23 +5,24 @@
 package video
 
 import (
-	"gopkg.in/redis.v5"
-	"github.com/tanyfx/ent/core/download"
-	"net/http"
-	"github.com/tanyfx/ent/core/page"
-	"github.com/tanyfx/ent/comm/redisutil"
-	"log"
 	"fmt"
+	"log"
+	"net/http"
+
+	"github.com/tanyfx/ent/comm/redisutil"
+	"github.com/tanyfx/ent/core/download"
+	"github.com/tanyfx/ent/core/page"
+	"gopkg.in/redis.v5"
 )
 
 type VideoDownloader struct {
-	RedisCli *redis.Client
+	RedisCli   *redis.Client
 	downloader *download.HttpDownloader
 }
 
 func GenVideoDownloader(redisCli *redis.Client) *VideoDownloader {
 	return &VideoDownloader{
-		RedisCli: redisCli,
+		RedisCli:   redisCli,
 		downloader: &download.HttpDownloader{},
 	}
 }

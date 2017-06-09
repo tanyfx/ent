@@ -1,16 +1,17 @@
 //author tyf
 //date   2017-02-07 11:35
-//desc 
+//desc
 
 package textutil
 
 import (
-	"strings"
-	"github.com/huichen/sego"
-	"log"
-	"gopkg.in/redis.v5"
-	"sync"
 	"errors"
+	"log"
+	"strings"
+	"sync"
+
+	"github.com/huichen/sego"
+	"gopkg.in/redis.v5"
 )
 
 type Doc struct {
@@ -58,7 +59,7 @@ func GetRedisTitles(client *redis.Client, titlePrefix, idPrefix string) []Doc {
 		srcID := strings.TrimPrefix(srcIDStr, idPrefix)
 		tmpDoc := Doc{
 			DocID: srcID,
-			Text: tmpTitle,
+			Text:  tmpTitle,
 		}
 		result = append(result, tmpDoc)
 	}
@@ -126,7 +127,7 @@ func InitDocs(docs []Doc, limitCount int, seg *sego.Segmenter, replacer *strings
 }
 
 func genWordsBagWorker(doc Doc, threadLimitChan chan int, docChan chan Doc, replacer *strings.Replacer,
-seg *sego.Segmenter) {
+	seg *sego.Segmenter) {
 	<-threadLimitChan
 	defer func() {
 		threadLimitChan <- 1
@@ -244,7 +245,6 @@ func FindSimDoc(input Doc, docList []Doc, limitCount int, simScore float32) (Doc
 	sendWG.Wait()
 	close(inputChan)
 
-
 	for i := rCount; i < sCount; i++ {
 		<-foundChan
 	}
@@ -259,13 +259,13 @@ func simWorker(inputDoc Doc, inputChan chan Doc, foundChan chan docCTX, wg *sync
 		score := similarity(inputDoc.wordsBag, doc.wordsBag)
 		if score >= simScore {
 			foundChan <- docCTX{
-				doc: doc,
+				doc:     doc,
 				findSim: true,
 			}
 			//log.Printf("sim worker %d find repeated doc\n", index)
 		} else {
 			foundChan <- docCTX{
-				doc: doc,
+				doc:     doc,
 				findSim: false,
 			}
 		}

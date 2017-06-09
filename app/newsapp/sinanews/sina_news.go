@@ -1,22 +1,23 @@
 //author tyf
 //date   2017-02-14 16:19
-//desc 
+//desc
 
 package sinanews
 
 import (
-	"regexp"
-	"log"
-	"strings"
-	"gopkg.in/xmlpath.v2"
 	"fmt"
-	"time"
+	"log"
 	"net/http"
+	"regexp"
+	"strings"
+	"time"
+
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/consts"
 	"github.com/tanyfx/ent/comm/news"
 	"github.com/tanyfx/ent/core/item"
 	"github.com/tanyfx/ent/core/page"
+	"gopkg.in/xmlpath.v2"
 )
 
 type SinaUpdateProducer struct {
@@ -57,7 +58,7 @@ func (p *SinaImgReplacer) ReplaceImgs(n *news.NewsItem, folderPath, urlPrefix st
 			tmpImg := news.GenNewsImg(n.GetNewsID(), n.Date, n.Title, folderPath, imgName, imgURL)
 			imgList = append(imgList, tmpImg)
 			newURL := urlPrefix + imgName
-			newsContent = strings.Replace(newsContent, oldStr, imgPrefix + newURL + imgSuffix, 1)
+			newsContent = strings.Replace(newsContent, oldStr, imgPrefix+newURL+imgSuffix, 1)
 		}
 	}
 	return newsContent, imgList

@@ -1,6 +1,6 @@
 //author tyf
 //date   2017-02-08 15:55
-//desc 
+//desc
 
 package page
 
@@ -18,11 +18,11 @@ type Page struct {
 
 func NewPage(req *http.Request) *Page {
 	return &Page{
-		req: req,
-		isSucc: false,
-		header: req.Header,
+		req:     req,
+		isSucc:  false,
+		header:  req.Header,
 		cookies: req.Cookies(),
-		meta: map[string]string{},
+		meta:    map[string]string{},
 	}
 }
 
@@ -91,4 +91,3 @@ func (p *Page) SetBody(body string) *Page {
 func (p *Page) GetBody() string {
 	return p.body
 }
-

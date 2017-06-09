@@ -1,17 +1,18 @@
 //author tyf
 //date   2017-02-09 18:04
-//desc 
+//desc
 
 package redisutil
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 	"time"
-	"fmt"
-	"gopkg.in/redis.v5"
-	"errors"
+
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/consts"
+	"gopkg.in/redis.v5"
 )
 
 const DELM string = "\001"
@@ -64,31 +65,31 @@ func (p *SimpleNews) SetRedisKey(client *redis.Client) error {
 	}
 	stars = strings.Join(starList, SEP)
 	newsMap := map[string]string{
-		"post_id": p.PostID,
+		"post_id":    p.PostID,
 		"news_title": title,
-		"news_link": link,
-		"news_date": p.NewsDate,
+		"news_link":  link,
+		"news_date":  p.NewsDate,
 	}
 	if len(stars) > 0 {
 		newsMap["star_pairs"] = stars
 	}
 	//if err := client.HMSet("news_id:" + p.NewsID, newsMap).Err(); err != nil {
-	if err := client.HMSet(consts.RedisNIDPrefix + newsID, newsMap).Err(); err != nil {
+	if err := client.HMSet(consts.RedisNIDPrefix+newsID, newsMap).Err(); err != nil {
 		return errors.New("error while hset news:" + p.NewsID + " " + err.Error())
 	}
 
 	//if err := client.Set("news_title:" + p.Title, "news_id:" + p.NewsID, 0).Err(); err != nil {
-	if err := client.Set(consts.RedisNTitlePrefix + title, consts.RedisNIDPrefix + newsID, 0).Err(); err != nil {
+	if err := client.Set(consts.RedisNTitlePrefix+title, consts.RedisNIDPrefix+newsID, 0).Err(); err != nil {
 		return errors.New("error while set news title key:" + p.NewsID + " " + p.Title + " " + err.Error())
 	}
 	//if err := client.Set("news_link:" + p.Link, "news_id:" + p.NewsID, 0).Err(); err != nil {
-	if err := client.Set(consts.RedisNLinkPrefix + link, consts.RedisNIDPrefix + newsID, 0).Err(); err != nil {
+	if err := client.Set(consts.RedisNLinkPrefix+link, consts.RedisNIDPrefix+newsID, 0).Err(); err != nil {
 		return errors.New("error while set news link key:" + p.NewsID + " " + p.Link + " " + err.Error())
 	}
 
-	client.Expire(consts.RedisNTitlePrefix + title, duration)
-	client.Expire(consts.RedisNLinkPrefix + link, duration)
-	client.Expire(consts.RedisNIDPrefix + newsID, duration)
+	client.Expire(consts.RedisNTitlePrefix+title, duration)
+	client.Expire(consts.RedisNLinkPrefix+link, duration)
+	client.Expire(consts.RedisNIDPrefix+newsID, duration)
 	return nil
 }
 
@@ -112,28 +113,28 @@ func (p *SimpleVideo) SetRedisKey(client *redis.Client) error {
 	stars = strings.Join(starList, SEP)
 	newsMap := map[string]string{
 		"video_title": p.Title,
-		"video_link": p.Link,
-		"video_date": p.VideoDate,
+		"video_link":  p.Link,
+		"video_date":  p.VideoDate,
 	}
 	if len(stars) > 0 {
 		newsMap["star_pairs"] = stars
 	}
 	//if err := client.HMSet("video_id:" + p.VideoID, newsMap).Err(); err != nil {
-	if err := client.HMSet(consts.RedisVIDPrefix + p.VideoID, newsMap).Err(); err != nil {
+	if err := client.HMSet(consts.RedisVIDPrefix+p.VideoID, newsMap).Err(); err != nil {
 		return errors.New("error while hset video:" + p.VideoID + " " + err.Error())
 	}
 
 	//if err := client.Set("video_title:" + p.Title, "video_id:" + p.VideoID, 0).Err(); err != nil {
-	if err := client.Set(consts.RedisVTitlePrefix + p.Title, consts.RedisVIDPrefix + p.VideoID, 0).Err(); err != nil {
+	if err := client.Set(consts.RedisVTitlePrefix+p.Title, consts.RedisVIDPrefix+p.VideoID, 0).Err(); err != nil {
 		return errors.New("error while set video title key:" + p.VideoID + " " + p.Title + " " + err.Error())
 	}
-	if err := client.Set(consts.RedisVLinkPrefix + p.Link, consts.RedisVIDPrefix + p.VideoID, 0).Err(); err != nil {
+	if err := client.Set(consts.RedisVLinkPrefix+p.Link, consts.RedisVIDPrefix+p.VideoID, 0).Err(); err != nil {
 		return errors.New("error while set video link key:" + p.VideoID + " " + p.Link + " " + err.Error())
 	}
 
-	client.Expire(consts.RedisVTitlePrefix + p.Title, duration)
-	client.Expire(consts.RedisVLinkPrefix + p.Link, duration)
-	client.Expire(consts.RedisVIDPrefix + p.VideoID, duration)
+	client.Expire(consts.RedisVTitlePrefix+p.Title, duration)
+	client.Expire(consts.RedisVLinkPrefix+p.Link, duration)
+	client.Expire(consts.RedisVIDPrefix+p.VideoID, duration)
 	return nil
 }
 

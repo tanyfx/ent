@@ -1,18 +1,19 @@
 //author tyf
 //date   2017-02-09 18:20
-//desc 
+//desc
 
 package wordpressutil
 
 import (
-	"strings"
 	"bufio"
+	"bytes"
 	"database/sql"
+	"errors"
 	"log"
 	"strconv"
-	"errors"
-	"bytes"
+	"strings"
 	"text/template"
+
 	"github.com/tanyfx/ent/comm/consts"
 )
 
@@ -127,7 +128,7 @@ func SavePost(db *sql.DB, post *Post) (postID int64, err error) {
 
 //func GenProfileTemplate(fields []string) (string, error) {
 func GenProfileTemplate(imgSrc, nameCN, birthday, height, weight, nationality,
-constellation, intro string) (string, error) {
+	constellation, intro string) (string, error) {
 	profileTemplate := `<ul class="star_profile">
     <li class="star_img"><img src="{{.ImgSrc}}" alt=""></li>
     <li>姓名：{{.NameCN}}</li>
@@ -168,15 +169,15 @@ constellation, intro string) (string, error) {
 		IntroFirst    string
 		IntroLast     string
 	}{
-		ImgSrc: imgSrc,
-		NameCN: nameCN,
-		Birthday: birthday,
-		Height: height,
-		Weight: weight,
-		Nationality: nationality,
+		ImgSrc:        imgSrc,
+		NameCN:        nameCN,
+		Birthday:      birthday,
+		Height:        height,
+		Weight:        weight,
+		Nationality:   nationality,
 		Constellation: constellation,
-		IntroFirst: introFirst,
-		IntroLast: introLast,
+		IntroFirst:    introFirst,
+		IntroLast:     introLast,
 	}
 
 	b := bytes.NewBuffer(make([]byte, 0))
@@ -194,4 +195,3 @@ constellation, intro string) (string, error) {
 	}
 	return b.String(), nil
 }
-

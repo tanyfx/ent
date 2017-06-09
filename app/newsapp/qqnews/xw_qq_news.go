@@ -1,22 +1,23 @@
 //author tyf
 //date   2017-02-17 14:42
-//desc 
+//desc
 
 package qqnews
 
 import (
-	"gopkg.in/xmlpath.v2"
-	"regexp"
-	"log"
-	"strings"
-	"net/http"
 	"fmt"
+	"log"
+	"net/http"
+	"regexp"
+	"strings"
 	"time"
+
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/consts"
 	"github.com/tanyfx/ent/comm/news"
 	"github.com/tanyfx/ent/core/item"
 	"github.com/tanyfx/ent/core/page"
+	"gopkg.in/xmlpath.v2"
 )
 
 type XWIndexProducer struct {
@@ -107,6 +108,3 @@ func (p *xwIndexPageProcessor) ProcessPage(indexPage *page.Page) []*item.ItemCTX
 
 	return ctxList
 }
-
-
-

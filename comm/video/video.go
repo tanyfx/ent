@@ -7,27 +7,27 @@ package video
 import "github.com/tanyfx/ent/comm"
 
 const (
-	VideoDate string = "video_date"
+	VideoDate  string = "video_date"
 	VideoTitle string = "video_title"
-	VideoLink string = "video_link"
+	VideoLink  string = "video_link"
 )
 
 type VideoItem struct {
 	videoIndex int
-	videoID string
-	postID string
+	videoID    string
+	postID     string
 
-	Link string
+	Link  string
 	Title string
-	Date string
+	Date  string
 	Stars []comm.StarIDPair
 }
 
 func NewVideoItem(title, date, link string) *VideoItem {
 	return &VideoItem{
 		Title: title,
-		Date: date,
-		Link: link,
+		Date:  date,
+		Link:  link,
 	}
 }
 

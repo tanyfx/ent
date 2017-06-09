@@ -1,26 +1,27 @@
 //author tyf
 //date   2017-02-07 15:47
-//desc 
+//desc
 
 package news
 
 import (
 	"regexp"
 	"strings"
+
 	"github.com/huichen/sego"
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/textutil"
 )
 
 const (
-	NewsDate string = "datetime"
-	NewsTitle string = "title"
-	Subtitle string = "subtitle"
-	Summary string = "summary"
-	NewsAuthor string = "author"
+	NewsDate    string = "datetime"
+	NewsTitle   string = "title"
+	Subtitle    string = "subtitle"
+	Summary     string = "summary"
+	NewsAuthor  string = "author"
 	NewsContent string = "content"
-	NewsLink string = "link"
-	FormatStr string = "`%s`='%s'"
+	NewsLink    string = "link"
+	FormatStr   string = "`%s`='%s'"
 )
 
 type NewsItem struct {
@@ -30,23 +31,23 @@ type NewsItem struct {
 	newsID    string
 	postID    string
 
-	Title     string
-	Date      string
-	Author    string
-	Subtitle  string
-	Summary   string
-	Content   string
-	Link      string
-	Stars     []comm.StarIDPair
-	Imgs      []NewsImg
+	Title    string
+	Date     string
+	Author   string
+	Subtitle string
+	Summary  string
+	Content  string
+	Link     string
+	Stars    []comm.StarIDPair
+	Imgs     []NewsImg
 }
 
 func GenNewsItem(title, date, author, link string) *NewsItem {
 	return &NewsItem{
-		Title: title,
-		Date: date,
+		Title:  title,
+		Date:   date,
 		Author: author,
-		Link: link,
+		Link:   link,
 	}
 }
 

@@ -1,20 +1,21 @@
 //author tyf
 //date   2017-02-15 18:43
-//desc 
+//desc
 
 package toutiaonews
 
 import (
-	"regexp"
-	"strings"
 	"fmt"
 	"log"
+	"regexp"
+	"strings"
 	"time"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/consts"
-	"github.com/tanyfx/ent/core/page"
 	"github.com/tanyfx/ent/comm/news"
+	"github.com/tanyfx/ent/core/page"
 )
 
 type ToutiaoImgReplacer struct {
@@ -57,7 +58,7 @@ func (p *ToutiaoNewsExtractor) ExtractNews(newsPage *page.Page) *news.NewsItem {
 	metaMap := newsPage.GetMeta()
 	n := &news.NewsItem{
 		Title: metaMap[news.NewsTitle],
-		Link: newsPage.GetRequest().URL.String(),
+		Link:  newsPage.GetRequest().URL.String(),
 	}
 
 	pRegexp := regexp.MustCompile(`<p>.*</p>`)
@@ -108,4 +109,3 @@ func (p *ToutiaoNewsExtractor) ExtractNews(newsPage *page.Page) *news.NewsItem {
 	}
 	return n
 }
-

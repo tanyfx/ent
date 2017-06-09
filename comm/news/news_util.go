@@ -1,22 +1,23 @@
 //author tyf
 //date   2017-02-16 10:16
-//desc 
+//desc
 
 package news
 
 import (
-	"github.com/huichen/sego"
-	"time"
-	"os"
-	"fmt"
-	"gopkg.in/redis.v5"
 	"errors"
-	"regexp"
+	"fmt"
 	"log"
+	"os"
+	"regexp"
 	"strings"
+	"time"
+
+	"github.com/huichen/sego"
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/consts"
 	"github.com/tanyfx/ent/comm/textutil"
+	"gopkg.in/redis.v5"
 )
 
 func GenNewsDeduper(newsRedisCli *redis.Client, seg *sego.Segmenter) (*textutil.Deduper, error) {
@@ -38,7 +39,6 @@ func GenImgFolderPrefix() (folderPath, urlPrefix string, err error) {
 	}
 	return folderPath, urlPrefix, nil
 }
-
 
 //isHidden 设置视频截图是否隐藏，true 隐藏，false 显示
 func ReplaceQQVideoIframe(n *NewsItem, folderPath, urlPrefix string, isHidden bool) (string, []NewsImg) {
@@ -73,13 +73,13 @@ func ReplaceQQVideoIframe(n *NewsItem, folderPath, urlPrefix string, isHidden bo
 				imgSrc := strings.TrimSuffix(urlPrefix, "/") + "/" + imgName
 				tmpNewsImg := GenNewsImg(n.newsID, n.Date, n.Title, folderPath, imgName, imgURL)
 				imgList = append(imgList, tmpNewsImg)
-				newStrList = append(newStrList, imgPrefix + imgSrc + imgSuffix)
+				newStrList = append(newStrList, imgPrefix+imgSrc+imgSuffix)
 				//newStrList = append(newStrList, imgPrefix + imgMatch[1] + imgSuffix)
 			}
 		}
 		vidMatch := vidRegexp.FindStringSubmatch(m)
 		if len(vidMatch) == 2 {
-			newStrList = append(newStrList, iframePrefix + vidMatch[1] + iframeSuffix)
+			newStrList = append(newStrList, iframePrefix+vidMatch[1]+iframeSuffix)
 		}
 		newStr := strings.Join(newStrList, "\n")
 		result = strings.Replace(result, m, newStr, 1)

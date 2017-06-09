@@ -1,14 +1,15 @@
 //author tyf
 //date   2017-02-07 11:35
-//desc 
+//desc
 
 package textutil
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 	"sync"
-	"fmt"
-	"errors"
+
 	"github.com/huichen/sego"
 	"github.com/tanyfx/ent/comm/consts"
 )
@@ -30,12 +31,12 @@ func NewDeduper(simScore float32, recentDocs, oldDocs []Doc, seg *sego.Segmenter
 	}
 	limitCount := consts.ThreadNum
 	deduper := &Deduper{
-		limitCount:	limitCount,
-		simScore:	simScore,
-		seg:		seg,
-		replacer:	NewStopWordsReplacer(),
+		limitCount: limitCount,
+		simScore:   simScore,
+		seg:        seg,
+		replacer:   NewStopWordsReplacer(),
 	}
-	deduper.mu	= &sync.Mutex{}
+	deduper.mu = &sync.Mutex{}
 	deduper.newDocs, _ = InitDocs(recentDocs, limitCount, seg, deduper.replacer)
 	deduper.oldDocs, _ = InitDocs(oldDocs, limitCount, seg, deduper.replacer)
 	return deduper, nil

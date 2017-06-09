@@ -1,25 +1,26 @@
 //author tyf
 //date   2017-02-09 18:06
-//desc 
+//desc
 
 package comm
 
 import (
-	"time"
-	"strings"
-	"gopkg.in/redis.v5"
-	"errors"
-	"database/sql"
-	"strconv"
-	"net/http"
-	"log"
-	"regexp"
-	"github.com/jmcvetta/randutil"
-	"io/ioutil"
-	"os"
 	"bufio"
+	"database/sql"
+	"errors"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/jmcvetta/randutil"
 	"github.com/tanyfx/ent/comm/consts"
+	"gopkg.in/redis.v5"
 )
 
 func ReadConf(filename string) (dbHandler, redisAddr, redisPasswd string, err error) {
@@ -289,7 +290,6 @@ func ConvertStrings(input []sql.NullString) []string {
 	return result
 }
 
-
 //用于插入分页符
 //a	input string slice
 //sep	separator
@@ -309,7 +309,7 @@ func JoinWithBreak(a []string, brk string, sep string, m int) string {
 		x--
 	}
 
-	n := len(brk) * x + len(sep) * (len(a) - 1 - x)
+	n := len(brk)*x + len(sep)*(len(a)-1-x)
 	for i := 0; i < len(a); i++ {
 		n += len(a[i])
 	}
@@ -323,7 +323,7 @@ func JoinWithBreak(a []string, brk string, sep string, m int) string {
 
 	count := 0
 	for _, s := range a[remain:] {
-		if count % m == 0 {
+		if count%m == 0 {
 			bp += copy(b[bp:], brk)
 		} else {
 			bp += copy(b[bp:], sep)

@@ -1,19 +1,20 @@
 //author tyf
 //date   2017-02-10 16:49
-//desc 
+//desc
 
 package news
 
 import (
-	"log"
-	"fmt"
-	"time"
-	"errors"
 	"database/sql"
+	"errors"
+	"fmt"
+	"log"
+	"time"
+
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/consts"
-	"github.com/tanyfx/ent/comm/textutil"
 	"github.com/tanyfx/ent/comm/redisutil"
+	"github.com/tanyfx/ent/comm/textutil"
 	"github.com/tanyfx/ent/core/page"
 	"gopkg.in/redis.v5"
 )
@@ -42,23 +43,23 @@ type NewsProcessor struct {
 
 func GenNewsProcessor(extractor NewsExtractor, imgReplacer ImgReplacer) *NewsProcessor {
 	return &NewsProcessor{
-		extractor: extractor,
+		extractor:   extractor,
 		imgReplacer: imgReplacer,
 	}
 }
 
 func InitNewsProcessor(extractor NewsExtractor, imgReplacer ImgReplacer, folderPath, urlPrefix string,
-db *sql.DB, newsRedisCli *redis.Client, newsDeduper *textutil.Deduper, starTagger *comm.StarTagger,
-starTaxonomyMap map[string]string) *NewsProcessor {
+	db *sql.DB, newsRedisCli *redis.Client, newsDeduper *textutil.Deduper, starTagger *comm.StarTagger,
+	starTaxonomyMap map[string]string) *NewsProcessor {
 	return &NewsProcessor{
-		extractor: extractor,
-		imgReplacer: imgReplacer,
-		db: db,
-		redisCli: newsRedisCli,
-		deduper: newsDeduper,
-		starTagger: starTagger,
-		folderPath: folderPath,
-		urlPrefix: urlPrefix,
+		extractor:       extractor,
+		imgReplacer:     imgReplacer,
+		db:              db,
+		redisCli:        newsRedisCli,
+		deduper:         newsDeduper,
+		starTagger:      starTagger,
+		folderPath:      folderPath,
+		urlPrefix:       urlPrefix,
 		starTaxonomyMap: starTaxonomyMap,
 	}
 }
@@ -143,8 +144,8 @@ func (p *NewsProcessor) ProcessPage(page *page.Page) error {
 }
 
 func (p *NewsProcessor) Init(extractor NewsExtractor, imgReplacer ImgReplacer, folderPath, urlPrefix string,
-db *sql.DB, redisCli *redis.Client, deduper *textutil.Deduper, starTagger *comm.StarTagger,
-starTaxonomyMap map[string]string) *NewsProcessor {
+	db *sql.DB, redisCli *redis.Client, deduper *textutil.Deduper, starTagger *comm.StarTagger,
+	starTaxonomyMap map[string]string) *NewsProcessor {
 	if extractor != nil {
 		p.extractor = extractor
 	}

@@ -1,12 +1,13 @@
 //author tyf
 //date   2017-02-08 15:53
-//desc 
+//desc
 
 package index
 
 import (
-	"sync"
 	"net/http"
+	"sync"
+
 	"github.com/tanyfx/ent/core/download"
 	"github.com/tanyfx/ent/core/item"
 	"github.com/tanyfx/ent/core/page"
@@ -26,13 +27,13 @@ type IndexCTX struct {
 }
 
 func NewIndexCTX(req *http.Request, indexDownloader, itemDownloader download.Downloader,
-processor IndexProcessor, itemProcessor page.PageProcessor) *IndexCTX {
+	processor IndexProcessor, itemProcessor page.PageProcessor) *IndexCTX {
 	ctx := &IndexCTX{
-		req: req,
-		downloader: indexDownloader,
-		processor: processor,
+		req:            req,
+		downloader:     indexDownloader,
+		processor:      processor,
 		itemDownloader: itemDownloader,
-		itemProcessor: itemProcessor,
+		itemProcessor:  itemProcessor,
 	}
 	return ctx
 }

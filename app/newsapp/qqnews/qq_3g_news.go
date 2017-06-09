@@ -1,24 +1,25 @@
 //author tyf
 //date   2017-02-17 14:52
-//desc 
+//desc
 
 package qqnews
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
+	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
-	"gopkg.in/xmlpath.v2"
-	"encoding/json"
-	"net/http"
-	"fmt"
 	"time"
-	"net/url"
+
 	"github.com/tanyfx/ent/comm"
-	"github.com/tanyfx/ent/core/page"
 	"github.com/tanyfx/ent/comm/consts"
-	"github.com/tanyfx/ent/core/item"
 	"github.com/tanyfx/ent/comm/news"
+	"github.com/tanyfx/ent/core/item"
+	"github.com/tanyfx/ent/core/page"
+	"gopkg.in/xmlpath.v2"
 )
 
 //TODO
@@ -66,7 +67,7 @@ func (p *qq3gImgReplacer) ReplaceImgs(n *news.NewsItem, folderPath, urlPrefix st
 			tmpImg := news.GenNewsImg(n.GetNewsID(), n.Date, n.Title, folderPath, imgName, imgURL)
 			imgList = append(imgList, tmpImg)
 			newURL := urlPrefix + imgName
-			newsContent = strings.Replace(newsContent, oldStr, newStr + newURL + `"`, 1)
+			newsContent = strings.Replace(newsContent, oldStr, newStr+newURL+`"`, 1)
 		}
 	}
 	n.Content = newsContent
@@ -95,7 +96,6 @@ type qq3gIndexPageProcessor struct {
 }
 
 func (p *qq3gIndexPageProcessor) ProcessPage(indexPage *page.Page) []*item.ItemCTX {
-
 
 	//log.Printf("3g qq index page content:\n%s\n", indexPage.GetBody())
 

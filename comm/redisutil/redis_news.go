@@ -1,19 +1,20 @@
 //author tyf
 //date   2017-02-09 18:08
-//desc 
+//desc
 
 package redisutil
 
 import (
-	"strings"
 	"database/sql"
-	"log"
-	"fmt"
-	"time"
-	"gopkg.in/redis.v5"
 	"errors"
+	"fmt"
+	"log"
+	"strings"
+	"time"
+
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/consts"
+	"gopkg.in/redis.v5"
 )
 
 func GenNewsList(db *sql.DB) []SimpleNews {
@@ -49,10 +50,10 @@ func getNewsList(db *sql.DB) []SimpleNews {
 			continue
 		}
 		tmpNews := SimpleNews{
-			NewsID: tmpNewsID.String,
-			PostID: tmpPostID.String,
-			Title: tmpTitle.String,
-			Link: tmpLink.String,
+			NewsID:   tmpNewsID.String,
+			PostID:   tmpPostID.String,
+			Title:    tmpTitle.String,
+			Link:     tmpLink.String,
 			NewsDate: tmpDate.String,
 		}
 		resultList = append(resultList, tmpNews)
@@ -88,7 +89,7 @@ func getNewsStarMap(db *sql.DB) map[string][]comm.StarIDPair {
 		if pairs, found := resultMap[tmpNewsID.String]; found {
 			resultMap[tmpNewsID.String] = append(pairs, tmpPair)
 		} else {
-			resultMap[tmpNewsID.String] = []comm.StarIDPair{ tmpPair }
+			resultMap[tmpNewsID.String] = []comm.StarIDPair{tmpPair}
 		}
 	}
 	return resultMap
@@ -130,7 +131,6 @@ func MGetNewsID(client *redis.Client, title, link string) (string, error) {
 	linkKey := consts.RedisNLinkPrefix + link
 	idList, err := client.MGet(titleKey, linkKey).Result()
 
-
 	for _, tmpID := range idList {
 		if tmpID == nil {
 			continue
@@ -145,4 +145,3 @@ func MGetNewsID(client *redis.Client, title, link string) (string, error) {
 	//return strings.TrimPrefix(resultID, "news_id:"), err
 	return strings.TrimPrefix(resultID, consts.RedisNIDPrefix), err
 }
-

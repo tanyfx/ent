@@ -1,17 +1,18 @@
 //author tyf
 //date   2017-02-08 15:53
-//desc 
+//desc
 
 package item
 
 import (
-	"sync"
-	"net/http"
-	"log"
 	"errors"
+	"log"
+	"net/http"
+	"sync"
+
+	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/core/download"
 	"github.com/tanyfx/ent/core/page"
-	"github.com/tanyfx/ent/comm"
 )
 
 // Req *http.Request
@@ -28,10 +29,10 @@ type ItemCTX struct {
 
 func NewItemCTX(req *http.Request, downloader download.Downloader, processor page.PageProcessor) *ItemCTX {
 	ctx := &ItemCTX{
-		req: req,
+		req:        req,
 		Downloader: downloader,
-		Processor: processor,
-		Meta: map[string]string{},
+		Processor:  processor,
+		Meta:       map[string]string{},
 	}
 	return ctx
 }

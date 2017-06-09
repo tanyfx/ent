@@ -5,21 +5,22 @@
 package main
 
 import (
-	"sync"
 	"errors"
 	"fmt"
-	"time"
 	"log"
+	"runtime"
+	"sync"
+	"time"
+
+	"github.com/tanyfx/ent/app/newsapp/qqnews"
+	"github.com/tanyfx/ent/app/newsapp/sinanews"
 	"github.com/tanyfx/ent/comm"
 	"github.com/tanyfx/ent/comm/consts"
 	"github.com/tanyfx/ent/comm/news"
-	"github.com/tanyfx/ent/core/item"
-	"github.com/tanyfx/ent/core/index"
-	"github.com/tanyfx/ent/core/page"
 	"github.com/tanyfx/ent/core/download"
-	"github.com/tanyfx/ent/app/newsapp/qqnews"
-	"github.com/tanyfx/ent/app/newsapp/sinanews"
-	"runtime"
+	"github.com/tanyfx/ent/core/index"
+	"github.com/tanyfx/ent/core/item"
+	"github.com/tanyfx/ent/core/page"
 )
 
 type SimpleProcessor struct {
@@ -91,10 +92,10 @@ func main() {
 	go func() {
 		for simpleCTX := range simpleChan {
 			processor := &SimpleProcessor{
-				extractor: simpleCTX.Extractor,
+				extractor:   simpleCTX.Extractor,
 				imgReplacer: simpleCTX.ImgReplacer,
-				folderPath: folderPath,
-				urlPrefix: urlPrefix,
+				folderPath:  folderPath,
+				urlPrefix:   urlPrefix,
 			}
 			indexCTX := index.NewIndexCTX(simpleCTX.Req, &download.HttpDownloader{},
 				&download.HttpDownloader{}, simpleCTX.IndexProcessor, processor)

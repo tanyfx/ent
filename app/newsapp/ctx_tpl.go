@@ -1,14 +1,14 @@
 //author tyf
 //date   2017-02-17 18:24
-//desc 
+//desc
 
 package main
 
 import (
-	"github.com/tanyfx/ent/comm/news"
-	"github.com/tanyfx/ent/core/page"
-	"github.com/tanyfx/ent/core/item"
 	"github.com/tanyfx/ent/comm"
+	"github.com/tanyfx/ent/comm/news"
+	"github.com/tanyfx/ent/core/item"
+	"github.com/tanyfx/ent/core/page"
 )
 
 type indexProducer struct {

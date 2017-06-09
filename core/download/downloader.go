@@ -1,15 +1,16 @@
 //author tyf
 //date   2017-02-05 17:01
-//desc 
+//desc
 
 package download
 
 import (
+	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
-	"io/ioutil"
+
 	"github.com/tanyfx/ent/core/page"
-	"log"
 )
 
 type Downloader interface {
@@ -31,7 +32,7 @@ func (p *HttpDownloader) Download(req *http.Request) *page.Page {
 	//respPage.AddCookies(resp.Cookies())
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		respPage.SetStatus(false,err.Error())
+		respPage.SetStatus(false, err.Error())
 		return respPage
 	}
 	respPage.SetBody(string(content)).SetStatus(true, "")
